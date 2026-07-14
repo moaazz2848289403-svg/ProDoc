@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProDoc - Ultimate Custom Resume Builder</title>
+    
+    <link rel="icon" type="image/png" href="logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght=400;600;700;800&family=Poppins:wght=400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #1d4ed8;
+            --primary-hover: #1e40af;
+            --dark-bg: #0f172a;
+            --dark-surface: #1e293b;
+            --light-bg: #f8fafc;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --doc-text: #1e293b;
+            --doc-muted: #475569;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* ألوان مخصصة ديناميكية للـ CV */
+            --cv-primary: #1d4ed8;
+            --cv-text: #1e293b;
+            --cv-muted: #475569;
+            --cv-bg-dark: #1e293b;
+            --cv-font-size: 10pt;
+            
+            /* أبعاد وتأثيرات الصورة الشخصية */
+            --img-size: 100px;
+            --img-radius: 50%;
+            --img-align: flex-start;
+            --img-border-style: none;
+            --img-shadow: none;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { font-family: 'Poppins', sans-serif; background-color: #e2e8f0; display: flex; height: 100vh; overflow: hidden; }
+        body[dir="rtl"] { font-family: 'Cairo', sans-serif; }
+
+        /* --- شاشة الترحيب الاحترافية الجديدة --- */
+        #startup-intro {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: radial-gradient(circle at 20% 30%, rgba(29, 78, 216, 0.15) 0%, transparent 40%),
+                        radial-gradient(circle at 80% 70%, rgba(16, 185, 129, 0.1) 0%, transparent 45%),
+                        #0b0f19;
+            z-index: 999999; display: flex; justify-content: center; align-items: center;
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+        
+        /* تزيين الخلفية بفقاعات هندسية ناعمة */
+        #startup-intro::before, #startup-intro::after {
+            content: ''; position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.4; pointer-events: none;
+        }
+        #startup-intro::before { top: -10%; left: -10%; width: 400px; height: 400px; background: #2563eb; }
+        #startup-intro::after { bottom: -10%; right: -10%; width: 400px; height: 400px; background: #0d9488; }
+
+        .intro-card {
+            background: rgba(15, 23, 42, 0.65); 
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            padding: 55px 45px; border-radius: 24px;
+            max-width: 680px; width: 90%; text-align: center; 
+            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.7),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1); 
+            color: white;
+            transform: scale(1);
+            transition: transform 0.4s ease;
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* تأثير الشعار الدائري الأنيق */
+        .intro-logo-badge {
+            width: 70px; height: 70px; background: linear-gradient(135deg, #2563eb, #0d9488);
+            border-radius: 20px; display: inline-flex; justify-content: center; align-items: center;
+            margin-bottom: 25px; box-shadow: 0 12px 24px -6px rgba(37, 99, 235, 0.5);
+            font-size: 1.8rem; font-weight: 800; color: white; letter-spacing: 1px;
+        }
+
+        .intro-card h1 { font-size: 2.8rem; margin-bottom: 12px; font-weight: 800; color: #fff; letter-spacing: -0.5px; line-height: 1.2; }
+        .intro-card h1 span { background: linear-gradient(135deg, #3b82f6, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        .intro-card p.subtitle { color: #94a3b8; font-size: 1.05rem; margin-bottom: 30px; line-height: 1.7; font-weight: 400; max-width: 550px; margin-left: auto; margin-right: auto; }
+        
+        /* مؤشرات المميزات المضافة حديثًا */
+        .intro-features-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 35px;
+        }
+        .feature-item {
+            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 15px 10px; border-radius: 12px; transition: var(--transition);
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.12);
+            transform: translateY(-2px);
+        }
+        .feature-item .icon { font-size: 1.4rem; margin-bottom: 6px; display: block; }
+        .feature-item .title { font-size: 0.8rem; color: #cbd5e1; font-weight: 600; display: block; }
+
+        /* أزرار اللغة العلوية بتناسق أنيق */
+        .lang-switch-intro { margin-bottom: 25px; display: inline-flex; background: rgba(255, 255, 255, 0.04); padding: 5px; border-radius: 30px; border: 1px solid rgba(255, 255, 255, 0.05); }
+        .lang-btn { background: transparent; color: #94a3b8; border: none; padding: 8px 24px; border-radius: 20px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: var(--transition); }
+        .lang-btn:hover { color: white; }
+        .lang-btn.active { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
+
+        /* زر التشغيل الأساسي بالتأثير التراكمي المضيء */
+        .start-btn { 
+            background: linear-gradient(135deg, #2563eb, #12b886); 
+            color: white; border: none; padding: 16px 48px; font-size: 1.15rem; 
+            border-radius: 50px; cursor: pointer; font-weight: 700; 
+            box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4), 0 0 15px rgba(18, 184, 134, 0.2); 
+            transition: var(--transition);
+            display: inline-flex; align-items: center; gap: 10px;
+        }
+        .start-btn:hover { 
+            background: linear-gradient(135deg, #1d4ed8, #0ca678); 
+            transform: translateY(-3px); 
+            box-shadow: 0 15px 30px -5px rgba(37, 99, 235, 0.5), 0 0 25px rgba(18, 184, 134, 0.3); 
+        }
+        .start-btn:active { transform: translateY(-1px); }
+
+        /* --- المحرر (الشريط الجانبي) --- */
+        .editor-sidebar {
+            width: 480px; background: var(--dark-bg); color: var(--text-light);
+            display: flex; flex-direction: column; height: 100%; border-right: 1px solid #334155; box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+        }
+        body[dir="rtl"] .editor-sidebar { border-right: none; border-left: 1px solid #334155; }
+        .sidebar-header { padding: 20px 25px; background: var(--dark-surface); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+        .sidebar-header h2 { font-size: 1.2rem; font-weight: 600; color: white; }
+        .form-container { padding: 25px; overflow-y: auto; flex-grow: 1; }
+        .form-container::-webkit-scrollbar { width: 8px; }
+        .form-container::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        
+        .section-box { background: var(--dark-surface); border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 1px solid #334155; }
+        .section-box h3 { font-size: 1.05rem; color: #3b82f6; margin-bottom: 15px; font-weight: 600; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 0.85rem; margin-bottom: 6px; color: var(--text-muted); }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 8px; font-size: 0.95rem; transition: var(--transition); }
+        .form-group input[type="color"] { padding: 2px; height: 40px; cursor: pointer; }
+        .form-group input[type="range"] { padding: 0; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: #3b82f6; }
+        
+        .style-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .style-btn { background: #0f172a; color: var(--text-muted); border: 1px solid #334155; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.85rem; transition: var(--transition); text-align: center; }
+        .style-btn:hover { border-color: #3b82f6; color: white; }
+        .style-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; }
+
+        .dynamic-item { padding-left: 15px; margin-bottom: 15px; border-left: 3px solid #3b82f6; position: relative; }
+        body[dir="rtl"] .dynamic-item { border-left: none; border-right: 3px solid #3b82f6; padding-left: 0; padding-right: 15px; }
+        .btn-add { background: rgba(59, 130, 246, 0.1); color: #3b82f6; width: 100%; padding: 12px; border: 1px dashed #3b82f6; border-radius: 8px; cursor: pointer; font-weight: 600; transition: var(--transition); }
+        .btn-add:hover { background: rgba(59, 130, 246, 0.2); }
+        .btn-remove { background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; margin-top: 5px; }
+        
+        .actions-panel { padding: 20px; background: var(--dark-surface); border-top: 1px solid #334155; display: flex; gap: 10px; }
+        .btn-print { background: #3b82f6; color: white; flex-grow: 1; padding: 16px; font-size: 1.1rem; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; transition: var(--transition); }
+        .btn-print:hover { background: #2563eb; transform: translateY(-2px); }
+        .btn-reset { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); padding: 16px; border-radius: 10px; cursor: pointer; font-weight: 600; }
+
+        .color-pickers-group { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+
+        /* --- المعاينة وورقة A4 --- */
+        .preview-container { flex-grow: 1; padding: 40px; overflow-y: auto; display: flex; justify-content: center; align-items: flex-start; }
+        .a4-page { width: 210mm; min-height: 297mm; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.06); padding: 20mm 18mm; box-sizing: border-box; color: var(--cv-text); display: flex; flex-direction: column; position: relative; }
+        
+        .cv-layout-wrapper { display: flex; flex-direction: column; width: 100%; height: 100%; }
+
+        /* الهيدر المتطور */
+        .doc-header { display: flex; flex-direction: column; align-items: var(--img-align); gap: 15px; border-bottom: 2px solid var(--cv-primary); padding-bottom: 18px; margin-bottom: 22px; width: 100%; }
+        .doc-header-img-container { width: 100%; display: flex; justify-content: var(--img-align); }
+        
+        /* تصميم الصورة وإطاراتها المختلفة */
+        .doc-header-img { 
+            width: var(--img-size); 
+            height: var(--img-size); 
+            border-radius: var(--img-radius); 
+            object-fit: cover; 
+            display: none; 
+            box-shadow: var(--img-shadow);
+            transition: var(--transition);
+        }
+        
+        /* تطبيق أنماط الإطارات برمجيًا */
+        .doc-header-img.border-double { border: 4px double var(--cv-primary); padding: 3px; }
+        .doc-header-img.border-shadow { box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23); }
+        .doc-header-img.border-dashed { border: 2px dashed var(--cv-primary); padding: 4px; }
+        .doc-header-img.border-wave { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; border: 3px solid var(--cv-primary); }
+
+        .doc-header-info { flex-grow: 1; width: 100%; text-align: left; }
+        body[dir="rtl"] .doc-header-info { text-align: right; }
+        .doc-header h2 { font-size: calc(var(--cv-font-size) + 14pt); color: var(--cv-primary); font-weight: 700; text-transform: uppercase; margin-bottom: 8px; line-height: 1.1; letter-spacing: -0.5px; }
+        .doc-header h2 span.name-label { font-size: calc(var(--cv-font-size) + 2pt); color: var(--cv-muted); font-weight: 500; text-transform: capitalize; margin-right: 8px; }
+        body[dir="rtl"] .doc-header h2 span.name-label { margin-right: 0; margin-left: 8px; }
+        
+        .doc-contact-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px 15px; font-size: calc(var(--cv-font-size) - 0.5pt); color: var(--cv-text); font-weight: 500; }
+        .doc-contact-item { display: flex; gap: 4px; color: var(--cv-muted); }
+        .doc-contact-item strong { color: var(--cv-text); font-weight: 600; }
+        
+        .doc-section { margin-bottom: 20px; }
+        .doc-section-title { font-size: calc(var(--cv-font-size) + 2pt); color: var(--cv-primary); border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 12px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
+        .doc-summary { font-size: var(--cv-font-size); line-height: 1.6; color: var(--cv-text); text-align: justify; }
+        
+        .doc-item { margin-bottom: 14px; }
+        .doc-item-row { display: flex; justify-content: space-between; font-weight: 700; font-size: calc(var(--cv-font-size) + 0.5pt); color: var(--cv-text); margin-bottom: 4px; }
+        
+        /* التنسيق الجديد للتعريفات والعناوين التوضيحية الجانبية */
+        .item-label { color: var(--cv-muted); font-weight: 500; font-size: calc(var(--cv-font-size) - 0.5pt); margin-right: 4px; }
+        body[dir="rtl"] .item-label { margin-right: 0; margin-left: 4px; }
+        .item-value { color: var(--cv-text); font-weight: 700; }
+        .item-date-value { color: var(--cv-text); font-weight: 600; font-size: calc(var(--cv-font-size) - 0.5pt); }
+
+        .doc-item-sub { font-weight: 600; font-size: calc(var(--cv-font-size) - 0.5pt); color: var(--cv-primary); margin-bottom: 4px; }
+        .doc-item-desc { font-size: calc(var(--cv-font-size) - 0.5pt); line-height: 1.5; color: var(--cv-muted); white-space: pre-line; margin-top: 4px; }
+
+        .skills-list-render { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: calc(var(--cv-font-size) - 0.5pt); color: var(--cv-text); font-weight: 500; }
+
+        /* التيمات الجاهزة */
+        .a4-page.theme-split { padding: 0; }
+        .a4-page.theme-split .cv-layout-wrapper { flex-direction: row; height: 100%; min-height: 297mm; }
+        .a4-page.theme-split .cv-side-col { width: 33%; background: var(--cv-bg-dark); padding: 20mm 15px 20mm 15mm; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 20px; }
+        body[dir="rtl"] .a4-page.theme-split .cv-side-col { border-right: none; border-left: 1px solid #e2e8f0; padding: 20mm 15mm 20mm 15px; }
+        .a4-page.theme-split .cv-main-col { width: 67%; padding: 20mm 18mm 20mm 15px; display: flex; flex-direction: column; }
+        body[dir="rtl"] .a4-page.theme-split .cv-main-col { padding: 20mm 15px 20mm 18mm; }
+        .a4-page.theme-split .doc-header { border-bottom: none; padding-bottom: 0; margin-bottom: 10px; }
+        .a4-page.theme-split .doc-contact-grid { grid-template-columns: 1fr; gap: 8px; width: 100%; margin-top: 10px; }
+        .a4-page.theme-split .skills-list-render { flex-direction: column; gap: 5px; }
+
+        .a4-page.theme-minimal { padding: 18mm 15mm; }
+        .a4-page.theme-minimal .doc-header { border-bottom: 1px solid var(--cv-text); gap: 10px; }
+        .a4-page.theme-minimal .doc-header h2 { color: var(--cv-text); }
+        .a4-page.theme-minimal .doc-contact-grid { display: flex; flex-wrap: wrap; gap: 5px 15px; }
+        .a4-page.theme-minimal .doc-section-title { color: var(--cv-text); border-bottom: 1px solid var(--cv-text); }
+
+        .a4-page.theme-bold { padding: 0; }
+        .a4-page.theme-bold .doc-header { background: var(--cv-bg-dark); color: white; padding: 18mm 18mm 15mm 18mm; margin-bottom: 22px; border-bottom: 4px solid var(--cv-primary); }
+        .a4-page.theme-bold .doc-header h2 { color: white; }
+        .a4-page.theme-bold .doc-contact-item { color: #cbd5e1; }
+        .a4-page.theme-bold .doc-contact-item strong { color: white; }
+        .a4-page.theme-bold .cv-layout-wrapper { padding: 0 18mm 20mm 18mm; }
+
+        .a4-page.theme-bordered { padding: 15mm; border: 1px solid #cbd5e1; }
+        .a4-page.theme-bordered::before { content: ''; position: absolute; top: 10px; left: 10px; right: 10px; bottom: 10px; border: 2px solid var(--cv-primary); pointer-events: none; opacity: 0.15; }
+        .a4-page.theme-bordered .doc-section-title { border-left: 4px solid var(--cv-primary); padding-left: 8px; border-bottom: none; }
+        body[dir="rtl"] .a4-page.theme-bordered .doc-section-title { border-left: none; border-right: 4px solid var(--cv-primary); padding-right: 8px; }
+
+        .a4-page.theme-stripe { padding: 20mm 18mm 20mm 25mm; }
+        body[dir="rtl"] .a4-page.theme-stripe { padding: 20mm 25mm 20mm 18mm; }
+        .a4-page.theme-stripe::after { content: ''; position: absolute; top: 0; left: 0; width: 8px; height: 100%; background: var(--cv-primary); }
+        body[dir="rtl"] .a4-page.theme-stripe::after { left: auto; right: 0; }
+
+        .a4-page.theme-slate { padding: 0; }
+        .a4-page.theme-slate .cv-layout-wrapper { flex-direction: row; height: 100%; min-height: 297mm; }
+        .a4-page.theme-slate .cv-side-col { width: 30%; background: #f1f5f9; padding: 20mm 15px; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 20px; }
+        body[dir="rtl"] .a4-page.theme-slate .cv-side-col { border-right: none; border-left: 1px solid #e2e8f0; }
+        .a4-page.theme-slate .cv-main-col { width: 70%; padding: 20mm 18mm; display: flex; flex-direction: column; }
+        .a4-page.theme-slate .doc-header { border-bottom: none; padding-bottom: 0; margin-bottom: 10px; }
+        .a4-page.theme-slate .doc-contact-grid { grid-template-columns: 1fr; gap: 8px; }
+
+        .a4-page.theme-grid .cv-layout-wrapper { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .a4-page.theme-grid .doc-section { background: #fafafa; padding: 15px; border-radius: 6px; border: 1px solid #f0f0f0; margin-bottom: 0; }
+        .a4-page.theme-grid .doc-section:first-child { grid-column: span 2; }
+
+        @media screen and (max-width: 992px) {
+            body { flex-direction: column; height: auto; overflow-y: auto; }
+            .editor-sidebar { width: 100%; height: auto; border-right: none; }
+            .preview-container { padding: 20px; overflow-x: hidden; }
+            .a4-page { transform: scale(0.6); transform-origin: top center; margin-bottom: -110mm; }
+        }
+
+        @media print {
+            body { background: none; display: block; overflow: visible; }
+            .editor-sidebar, #startup-intro { display: none !important; }
+            .preview-container { padding: 0 !important; display: block !important; overflow: visible !important; }
+            .a4-page { box-shadow: none !important; width: 210mm !important; min-height: 297mm !important; margin: 0 !important; transform: none !important; }
+            .a4-page.theme-split .cv-side-col, .a4-page.theme-slate .cv-side-col { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .a4-page.theme-bold .doc-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            @page { size: A4; margin: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="startup-intro">
+        <div class="intro-card">
+            <!-- الشعار التخيلي الجديد -->
+            <div class="intro-logo-badge">PD</div>
+            
+            <div class="lang-switch-intro">
+                <button class="lang-btn active" id="intro-lang-en" onclick="setLang('en')">English</button>
+                <button class="lang-btn" id="intro-lang-ar" onclick="setLang('ar')">العربية</button>
+            </div>
+            
+            <h1>ProDoc <span>Studio Canvas</span></h1>
+            <p class="subtitle" data-i18n="intro_desc">Craft a standout professional resume effortlessly. Complete dynamic style control over spacing, colors, image positioning and fonts.</p>
+            
+            <!-- شبكة المميزات الجديدة تمامًا -->
+            <div class="intro-features-grid">
+                <div class="feature-item">
+                    <span class="icon">📄</span>
+                    <span class="title" data-i18n="feat_a4">100% A4 Formatted</span>
+                </div>
+                <div class="feature-item">
+                    <span class="icon">🎨</span>
+                    <span class="title" data-i18n="feat_colors">Live Style Engine</span>
+                </div>
+                <div class="feature-item">
+                    <span class="icon">⚡</span>
+                    <span class="title" data-i18n="feat_speed">Instant PDF Sync</span>
+                </div>
+            </div>
+
+            <button class="start-btn" onclick="hideIntro()">
+                <span data-i18n="btn_start">Open Canvas Editor</span>
+                <span>→</span>
+            </button>
+        </div>
+    </div>
+
+    <aside class="editor-sidebar">
+        <div class="sidebar-header">
+            <h2 data-i18n="sidebar_title">Document Editor</h2>
+            <div>
+                <button class="lang-btn" style="border-color: #334155; padding: 5px 12px;" onclick="setLang('en')">EN</button>
+                <button class="lang-btn" style="border-color: #334155; padding: 5px 12px;" onclick="setLang('ar')">AR</button>
+            </div>
+        </div>
+        
+        <div class="form-container">
+            <!-- قسم التشكيلات الفورية المجهزة للتحكم الذكي السريع -->
+            <div class="section-box">
+                <h3 style="color:#10b981;" data-i18n="sec_presets">🚀 Quick Creative Presets</h3>
+                <div class="style-grid">
+                    <button class="style-btn" onclick="applyFullPreset('gold_slate')" style="border-color:#d97706;">Golden Slate</button>
+                    <button class="style-btn" onclick="applyFullPreset('modern_emerald')" style="border-color:#059669;">Emerald Left</button>
+                    <button class="style-btn" onclick="applyFullPreset('executive_dark')" style="border-color:#475569;">Tech Executive</button>
+                    <button class="style-btn" onclick="applyFullPreset('ruby_grid')" style="border-color:#dc2626;">Ruby Geometric</button>
+                </div>
+            </div>
+
+            <!-- لوحة التحكم الحرة بمظهر وإطار الصورة -->
+            <div class="section-box">
+                <h3 data-i18n="sec_img_controls">Image Frame & Customizer</h3>
+                <div class="form-group">
+                    <label data-i18n="lbl_img_align">Image Horizontal Position</label>
+                    <select id="select-img-align" onchange="changeStyleVar('--img-align', this.value); updateFullPreview();">
+                        <option value="flex-start" data-i18n="opt_left">Left / Start</option>
+                        <option value="center" data-i18n="opt_center">Center</option>
+                        <option value="flex-end" data-i18n="opt_right">Right / End</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="lbl_img_size">Image Diameter Scale</label>
+                    <input type="range" id="range-img-size" min="70" max="150" value="100" oninput="changeStyleVar('--img-size', this.value + 'px')">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="lbl_img_radius">Image Edge Shape</label>
+                    <select id="select-img-radius" onchange="changeStyleVar('--img-radius', this.value); updateFullPreview();">
+                        <option value="50%" data-i18n="opt_circle">Perfect Circle</option>
+                        <option value="12px" data-i18n="opt_rounded">Sleek Rounded Square</option>
+                        <option value="0px" data-i18n="opt_square">Classic Sharp Square</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="lbl_img_frame">Picture Frame Style</label>
+                    <select id="select-img-frame" onchange="applyImageFrame(this.value)">
+                        <option value="none" data-i18n="opt_frame_none">Minimal (No Frame)</option>
+                        <option value="double" data-i18n="opt_frame_double">Double Ring Border</option>
+                        <option value="shadow" data-i18n="opt_frame_shadow">3D Drop Shadow</option>
+                        <option value="dashed" data-i18n="opt_frame_dashed">Dashed Creative Frame</option>
+                        <option value="wave" data-i18n="opt_frame_wave">Sleek Fluid Wave</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- قسم التحكم في الألوان والمظهر الحر -->
+            <div class="section-box">
+                <h3 data-i18n="sec_style_controls">Style & Palette Canvas</h3>
+                <div class="color-pickers-group">
+                    <div class="form-group">
+                        <label data-i18n="lbl_color_primary">Primary Accent</label>
+                        <input type="color" id="picker-primary" value="#1d4ed8" oninput="changeStyleVar('--cv-primary', this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="lbl_color_text">Main Text</label>
+                        <input type="color" id="picker-text" value="#1e293b" oninput="changeStyleVar('--cv-text', this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="lbl_color_muted">Secondary Muted</label>
+                        <input type="color" id="picker-muted" value="#475569" oninput="changeStyleVar('--cv-muted', this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="lbl_color_bg">Dark Theme BG</label>
+                        <input type="color" id="picker-bg" value="#1e293b" oninput="changeStyleVar('--cv-bg-dark', this.value)">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top:10px;">
+                    <label data-i18n="lbl_font_size">Global Font Size Scale</label>
+                    <input type="range" id="range-font-size" min="8" max="14" value="10" step="0.5" oninput="changeStyleVar('--cv-font-size', this.value + 'pt')">
+                </div>
+            </div>
+
+            <!-- قوالب التوزيع الأساسية والمطورة -->
+            <div class="section-box">
+                <h3 data-i18n="sec_theme">Choose Layout Structure</h3>
+                <div class="style-grid">
+                    <button class="style-btn active" id="btn-theme-modern" onclick="setTheme('modern')" data-i18n="tmpl_modern">Modern Labeled</button>
+                    <button class="style-btn" id="btn-theme-split" onclick="setTheme('split')" data-i18n="tmpl_split">Split Side Column</button>
+                    <button class="style-btn" id="btn-theme-minimal" onclick="setTheme('minimal')" data-i18n="tmpl_minimal">Executive Minimal</button>
+                    <button class="style-btn" id="btn-theme-bold" onclick="setTheme('bold')" data-i18n="tmpl_bold">Tech Navy Header</button>
+                    <button class="style-btn" id="btn-theme-bordered" onclick="setTheme('bordered')" data-i18n="tmpl_bordered">Elegant Bordered Line</button>
+                    <button class="style-btn" id="btn-theme-stripe" onclick="setTheme('stripe')" data-i18n="tmpl_stripe">Left Accent Stripe</button>
+                    <button class="style-btn" id="btn-theme-slate" onclick="setTheme('slate')" data-i18n="tmpl_slate">Modern Slate Sidebar</button>
+                    <button class="style-btn" id="btn-theme-grid" onclick="setTheme('grid')" data-i18n="tmpl_grid">Geometric Grid</button>
+                </div>
+            </div>
+
+            <!-- 1. المعلومات الشخصية -->
+            <div class="section-box">
+                <h3 data-i18n="sec_personal">Personal Information</h3>
+                <div class="form-group"><label data-i18n="lbl_img">Profile Picture (Optional)</label><input type="file" id="input-img" accept="image/*"></div>
+                <div class="form-group"><label data-i18n="lbl_name">Full Name</label><input type="text" id="input-name" placeholder="John Doe"></div>
+                <div class="form-group"><label data-i18n="lbl_email">Email Address</label><input type="email" id="input-email" placeholder="email@example.com"></div>
+                <div class="form-group"><label data-i18n="lbl_phone">Phone Number</label><input type="text" id="input-phone" placeholder="+20 100 000 0000"></div>
+                <div class="form-group"><label data-i18n="lbl_loc">Location</label><input type="text" id="input-location" placeholder="Cairo, Egypt"></div>
+                <div class="form-group"><label data-i18n="lbl_link">LinkedIn / Portfolio Link</label><input type="text" id="input-link" placeholder="linkedin.com/in/username"></div>
+            </div>
+
+            <!-- 2. الملخص المهني -->
+            <div class="section-box">
+                <h3 data-i18n="sec_summary">Professional Summary</h3>
+                <div class="form-group"><textarea id="input-summary" rows="4" data-i18n-ph="ph_summary"></textarea></div>
+            </div>
+
+            <!-- 3. المشاريع والأعمال الاحترافية -->
+            <div class="section-box">
+                <h3 data-i18n="sec_proj">Projects & Key Works</h3>
+                <div id="projects-form-list"></div>
+                <button class="btn-add" onclick="addProjectField()" data-i18n="btn_add_proj">+ Add Project</button>
+            </div>
+
+            <!-- 4. الخبرات -->
+            <div class="section-box">
+                <h3 data-i18n="sec_exp">Work Experience</h3>
+                <div id="experience-form-list"></div>
+                <button class="btn-add" onclick="addExperienceField()" data-i18n="btn_add_exp">+ Add Experience</button>
+            </div>
+
+            <!-- 5. التعليم -->
+            <div class="section-box">
+                <h3 data-i18n="sec_edu">Education</h3>
+                <div id="education-form-list"></div>
+                <button class="btn-add" onclick="addEducationField()" data-i18n="btn_add_edu">+ Add Education</button>
+            </div>
+
+            <!-- 6. الشهادات -->
+            <div class="section-box">
+                <h3 data-i18n="sec_cert">Certifications</h3>
+                <div id="cert-form-list"></div>
+                <button class="btn-add" onclick="addCertField()" data-i18n="btn_add_cert">+ Add Certification</button>
+            </div>
+
+            <!-- 7. المهارات واللغات -->
+            <div class="section-box">
+                <h3 data-i18n="sec_skills">Skills & Languages</h3>
+                <div class="form-group"><label data-i18n="lbl_skills">Technical Skills</label><input type="text" id="input-skills" data-i18n-ph="ph_skills_input"></div>
+                <div class="form-group"><label data-i18n="lbl_langs">Languages</label><input type="text" id="input-langs" data-i18n-ph="ph_langs_input"></div>
+            </div>
+        </div>
+        
+        <div class="actions-panel">
+            <button class="btn-print" onclick="window.print()" data-i18n="btn_print">Download / Print PDF</button>
+            <button class="btn-reset" onclick="resetAllData()" title="Reset All Data">🗑️</button>
+        </div>
+    </aside>
+
+    <main class="preview-container">
+        <div class="a4-page" id="cv-render-target"></div>
+    </main>
+
+    <script>
+        const dictionary = {
+            en: {
+                intro_desc: "Craft a standout professional resume effortlessly. Complete dynamic style control over spacing, colors, image positioning and fonts.",
+                btn_start: "Open Canvas Editor", sidebar_title: "Document Editor",
+                sec_style_controls: "Style & Palette Canvas", lbl_color_primary: "Primary Accent Color", lbl_color_text: "Main Body Text", lbl_color_muted: "Secondary Info Text", lbl_color_bg: "Dark Mode Layout BG", lbl_font_size: "Global Font Size Scale",
+                sec_img_controls: "Image Frame & Customizer", lbl_img_align: "Horizontal Orientation", lbl_img_size: "Image Diameter Scale", lbl_img_radius: "Image Edge Shape", lbl_img_frame: "Picture Frame Style",
+                opt_left: "Left Align", opt_center: "Centered Frame", opt_right: "Right Align", opt_circle: "Circular Frame", opt_rounded: "Soft Rounded Square", opt_square: "Sharp Classic Square",
+                opt_frame_none: "Minimal (No Frame)", opt_frame_double: "Double Ring Border", opt_frame_shadow: "3D Drop Shadow", opt_frame_dashed: "Dashed Creative Frame", opt_frame_wave: "Sleek Fluid Wave",
+                sec_theme: "Choose Layout Structure", tmpl_modern: "Modern Labeled", tmpl_split: "Split Side Column", tmpl_minimal: "Executive Minimal", tmpl_bold: "Tech Navy Header",
+                tmpl_bordered: "Elegant Bordered Line", tmpl_stripe: "Left Accent Stripe", tmpl_slate: "Modern Slate Sidebar", tmpl_grid: "Geometric Grid",
+                sec_personal: "Personal Information", lbl_img: "Profile Picture (Optional)", lbl_name: "Full Name", lbl_email: "Email Address", lbl_phone: "Phone Number", lbl_loc: "Location", lbl_link: "LinkedIn / Portfolio Link",
+                sec_summary: "Professional Summary", ph_summary: "Write a brief overview of your career, goals, and technical expertise...",
+                sec_proj: "Key Projects", btn_add_proj: "+ Add Project", lbl_proj_title: "Project Title", lbl_proj_link: "Project Link / GitHub",
+                sec_exp: "Work Experience", btn_add_exp: "+ Add Experience", lbl_job: "Job Title", lbl_comp: "Company",
+                sec_edu: "Education", btn_add_edu: "+ Add Education", lbl_deg: "Degree / Major", lbl_inst: "Institution / University",
+                sec_cert: "Certifications & Courses", btn_add_cert: "+ Add Certification", lbl_cert: "Certificate Name", lbl_org: "Issuing Organization",
+                sec_skills: "Technical Skills", sec_langs: "Languages", lbl_skills: "Technical Skills", lbl_langs: "Languages",
+                ph_skills_input: "Example: Problem Solving, C++, SQL", ph_langs_input: "Example: English, Arabic",
+                lbl_date: "Date / Year", lbl_desc: "Description / Tech Stack", btn_remove: "Remove", btn_print: "Download / Print PDF",
+                lbl_name_tag: "Name:", lbl_phone_tag: "Phone:", lbl_email_tag: "Email:", lbl_loc_tag: "Location:", lbl_link_tag: "Link:",
+                
+                tag_proj_title: "Project Name:", tag_proj_link: "Project Link:", tag_date: "Date:",
+                tag_job_title: "Job Title:", tag_company: "Company:",
+                tag_degree: "Degree:", tag_institution: "Institution:",
+                tag_cert_title: "Certificate:", tag_issuer: "Issuing Org:",
+
+                default_skills: "Problem Solving, C++, Git, Teamwork", default_langs: "English, Arabic", sec_presets: "🚀 Quick Creative Presets",
+                feat_a4: "100% A4 Formatted", feat_colors: "Live Style Engine", feat_speed: "Instant PDF Sync"
+            },
+            ar: {
+                intro_desc: "صمم سيرتك الذاتية باحترافية وسهولة تامة. تحكم كامل وحر في المسافات، الألوان، أبعاد ومكان الصورة وعرض الخطوط.",
+                btn_start: "ابدأ التصميم والتحكم", sidebar_title: "محرر البيانات",
+                sec_style_controls: "لوحة تحكم الألوان والخطوط", lbl_color_primary: "اللون الأساسي للعناوين", lbl_color_text: "لون النصوص الأساسية", lbl_color_muted: "لون المعلومات الفرعية", lbl_color_bg: "لون خلفية التيمات الداكنة", lbl_font_size: "الحجم العام لخطوط الصفحة",
+                sec_img_controls: "هندسة وإطارات الصورة", lbl_img_align: "المحاذاة والموقع الأفقي", lbl_img_size: "مقياس قطر وحجم الصورة", lbl_img_radius: "هندسة وشكل حواف الصورة", lbl_img_frame: "استايل ونمط إطار الصورة",
+                opt_left: "محاذاة لليسار", opt_center: "توسيط في المنتصف", opt_right: "محاذاة لليمين", opt_circle: "دائرة كاملة ناعمة", opt_rounded: "مربع زوايا منحنية شيك", opt_square: "مربع حاد كلاسيكي",
+                opt_frame_none: "مكشوف بدون إطار", opt_frame_double: "إطار حلقي مضاعف", opt_frame_shadow: "ظل مجسم ثلاثي الأبعاد", opt_frame_dashed: "إطار هندسي متقطع", opt_frame_wave: "تأثير تموجي انسيابي",
+                sec_theme: "اختر النمط وتوزيع العناصر", tmpl_modern: "علوي معنون", tmpl_split: "عمود جانبي منقسم", tmpl_minimal: "تنفيذي مبسط", tmpl_bold: "هيدر داكن جريء",
+                tmpl_bordered: "إطار فاخر مبسط", tmpl_stripe: "خط ملوّن جانبي وعصري", tmpl_slate: "جانبي رمادي هادئ", tmpl_grid: "شبكة توزيع هندسية",
+                sec_personal: "المعلومات الشخصية", lbl_img: "الصورة الشخصية (اختياري)", lbl_name: "الاسم الكامل", lbl_email: "البريد الإلكتروني", lbl_phone: "رقم الهاتف", lbl_loc: "الموقع / العنوان", lbl_link: "رابط لينكد إن / معرض الأعمال",
+                sec_summary: "الملخص المهني", ph_summary: "اكتب نبذة مختصرة وقوية عن أهدافك ومسيرتك المهنية...",
+                sec_proj: "المشاريع المميزة", btn_add_proj: "+ إضافة مشروع", lbl_proj_title: "اسم المشروع", lbl_proj_link: "رابط المشروع / GitHub",
+                sec_exp: "الخبرات العملية", btn_add_exp: "+ إضافة خبرة", lbl_job: "المسمى الوظيفي", lbl_comp: "الشركة / المؤسسة",
+                sec_edu: "المؤهلات العلمية", btn_add_edu: "+ إضافة مؤهل", lbl_deg: "الدرجة العلمية / التخصص", lbl_inst: "الجامعة / الكلية",
+                sec_cert: "الشهادات والكورسات", btn_add_cert: "+ إضافة شهادة", lbl_cert: "اسم الشهادة / الكورس", lbl_org: "الجهة المانحة",
+                sec_skills: "المهارات التقنية", sec_langs: "اللغات", lbl_skills: "المهارات التقنية", lbl_langs: "اللغات",
+                ph_skills_input: "مثال: حل المشكلات، C++، إدارة القواعد", ph_langs_input: "مثال: العربية، الإنجليزية",
+                lbl_date: "التاريخ / السنة", lbl_desc: "الوصف / التقنيات المستخدمة", btn_remove: "حذف", btn_print: "طباعة / تحميل PDF",
+                lbl_name_tag: "الاسم:", lbl_phone_tag: "الهاتف:", lbl_email_tag: "البريد:", lbl_loc_tag: "الموقع:", lbl_link_tag: "الرابط:",
+                
+                tag_proj_title: "اسم المشروع:", tag_proj_link: "رابط المشروع:", tag_date: "التاريخ:",
+                tag_job_title: "المسمى الوظيفي:", tag_company: "الشركة:",
+                tag_degree: "الدرجة العلمية:", tag_institution: "الجامعة/المؤسسة:",
+                tag_cert_title: "الشهادة/الكورس:", tag_issuer: "الجهة المانحة:",
+
+                default_skills: "حل المشكلات, التواصل الفعال, العمل الجماعي", default_langs: "العربية, الإنجليزية", sec_presets: "🚀 تجهيزات سريعة ومبتكرة",
+                feat_a4: "متوافق 100% مع A4", feat_colors: "تحكم فوري بالألوان", feat_speed: "تصدير فوري PDF"
+            }
+        };
+
+        let currentLang = 'en'; let currentTheme = 'modern';
+        let projects = []; let experiences = []; let education = []; let certs = [];
+        let profileImgData = '';
+        let activeFrameStyle = 'none';
+
+        function changeStyleVar(variableName, val) {
+            document.documentElement.style.setProperty(variableName, val);
+        }
+
+        function applyImageFrame(frameStyle) {
+            activeFrameStyle = frameStyle;
+            updateFullPreview();
+            saveToLocalStorage();
+        }
+
+        function applyFullPreset(presetName) {
+            if (presetName === 'gold_slate') {
+                setTheme('slate');
+                changeStyleVar('--cv-primary', '#b45309');
+                changeStyleVar('--cv-text', '#1e293b');
+                changeStyleVar('--cv-muted', '#475569');
+                changeStyleVar('--img-align', 'center');
+                changeStyleVar('--img-radius', '50%');
+                changeStyleVar('--img-size', '110px');
+                applyImageFrame('double');
+                
+                document.getElementById('picker-primary').value = '#b45309';
+                document.getElementById('select-img-align').value = 'center';
+                document.getElementById('select-img-radius').value = '50%';
+                document.getElementById('range-img-size').value = '110';
+                document.getElementById('select-img-frame').value = 'double';
+            } 
+            else if (presetName === 'modern_emerald') {
+                setTheme('stripe');
+                changeStyleVar('--cv-primary', '#047857');
+                changeStyleVar('--cv-text', '#0f172a');
+                changeStyleVar('--cv-muted', '#4b5563');
+                changeStyleVar('--img-align', 'flex-start');
+                changeStyleVar('--img-radius', '30% 70% 70% 30% / 30% 30% 70% 70%');
+                changeStyleVar('--img-size', '100px');
+                applyImageFrame('wave');
+
+                document.getElementById('picker-primary').value = '#047857';
+                document.getElementById('select-img-align').value = 'flex-start';
+                document.getElementById('select-img-radius').value = '12px';
+                document.getElementById('range-img-size').value = '100';
+                document.getElementById('select-img-frame').value = 'wave';
+            }
+            else if (presetName === 'executive_dark') {
+                setTheme('bold');
+                changeStyleVar('--cv-primary', '#1e3a8a');
+                changeStyleVar('--cv-text', '#1e293b');
+                changeStyleVar('--cv-muted', '#64748b');
+                changeStyleVar('--img-align', 'flex-start');
+                changeStyleVar('--img-radius', '12px');
+                changeStyleVar('--img-size', '120px');
+                applyImageFrame('shadow');
+
+                document.getElementById('picker-primary').value = '#1e3a8a';
+                document.getElementById('select-img-align').value = 'flex-start';
+                document.getElementById('select-img-radius').value = '12px';
+                document.getElementById('range-img-size').value = '120';
+                document.getElementById('select-img-frame').value = 'shadow';
+            }
+            else if (presetName === 'ruby_grid') {
+                setTheme('grid');
+                changeStyleVar('--cv-primary', '#be123c');
+                changeStyleVar('--cv-text', '#1f2937');
+                changeStyleVar('--cv-muted', '#4b5563');
+                changeStyleVar('--img-align', 'center');
+                changeStyleVar('--img-radius', '50%');
+                changeStyleVar('--img-size', '95px');
+                applyImageFrame('dashed');
+
+                document.getElementById('picker-primary').value = '#be123c';
+                document.getElementById('select-img-align').value = 'center';
+                document.getElementById('select-img-radius').value = '50%';
+                document.getElementById('range-img-size').value = '95';
+                document.getElementById('select-img-frame').value = 'dashed';
+            }
+            updateFullPreview();
+            saveToLocalStorage();
+        }
+
+        function setLang(lang) {
+            currentLang = lang;
+            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+            document.documentElement.lang = lang;
+
+            document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (dictionary[lang][key]) el.innerText = dictionary[lang][key]; });
+            document.querySelectorAll('[data-i18n-ph]').forEach(el => { const key = el.getAttribute('data-i18n-ph'); if (dictionary[lang][key]) el.placeholder = dictionary[lang][key]; });
+            
+            // تحديث حالة أزرار اللغات في الشاشة الافتتاحية بدقة عالية
+            document.querySelectorAll('.lang-switch-intro .lang-btn').forEach(btn => btn.classList.remove('active'));
+            if (lang === 'en') document.getElementById('intro-lang-en').classList.add('active');
+            else document.getElementById('intro-lang-ar').classList.add('active');
+
+            const sIn = document.getElementById('input-skills'); const lIn = document.getElementById('input-langs');
+            if(!sIn.value || sIn.value === dictionary.en.default_skills || sIn.value === dictionary.ar.default_skills) sIn.value = dictionary[lang].default_skills;
+            if(!lIn.value || lIn.value === dictionary.en.default_langs || lIn.value === dictionary.ar.default_langs) lIn.value = dictionary[lang].default_langs;
+
+            renderProjectsForm(); renderExperienceForm(); renderEducationForm(); renderCertForm(); updateFullPreview(); saveToLocalStorage();
+        }
+
+        function setTheme(theme) {
+            currentTheme = theme;
+            document.querySelectorAll('.style-btn').forEach(btn => btn.classList.remove('active'));
+            const matchedBtn = document.getElementById(`btn-theme-${theme}`);
+            if(matchedBtn) matchedBtn.classList.add('active');
+            
+            const page = document.getElementById('cv-render-target');
+            page.className = 'a4-page'; 
+            if(theme !== 'modern') page.classList.add(`theme-${theme}`);
+            
+            updateFullPreview(); saveToLocalStorage();
+        }
+
+        function hideIntro() {
+            const intro = document.getElementById('startup-intro');
+            intro.style.opacity = '0'; intro.style.visibility = 'hidden';
+            setTimeout(() => { intro.style.display = 'none'; }, 600);
+        }
+
+        function saveToLocalStorage() {
+            const userData = {
+                currentLang, currentTheme, profileImgData, activeFrameStyle,
+                name: document.getElementById('input-name').value,
+                email: document.getElementById('input-email').value,
+                phone: document.getElementById('input-phone').value,
+                location: document.getElementById('input-location').value,
+                link: document.getElementById('input-link').value,
+                summary: document.getElementById('input-summary').value,
+                skills: document.getElementById('input-skills').value,
+                langs: document.getElementById('input-langs').value,
+                projects, experiences, education, certs
+            };
+            localStorage.setItem('prodoc_canvas_v3_premium', JSON.stringify(userData));
+        }
+
+        function loadFromLocalStorage() {
+            const dataRaw = localStorage.getItem('prodoc_canvas_v3_premium');
+            if(dataRaw) {
+                try {
+                    const d = JSON.parse(dataRaw);
+                    document.getElementById('input-name').value = d.name || '';
+                    document.getElementById('input-email').value = d.email || '';
+                    document.getElementById('input-phone').value = d.phone || '';
+                    document.getElementById('input-location').value = d.location || '';
+                    document.getElementById('input-link').value = d.link || '';
+                    document.getElementById('input-summary').value = d.summary || '';
+                    document.getElementById('input-skills').value = d.skills || '';
+                    document.getElementById('input-langs').value = d.langs || '';
+                    projects = d.projects || []; experiences = d.experiences || []; education = d.education || []; certs = d.certs || [];
+                    profileImgData = d.profileImgData || '';
+                    currentTheme = d.currentTheme || 'modern';
+                    activeFrameStyle = d.activeFrameStyle || 'none';
+                    
+                    document.getElementById('select-img-frame').value = activeFrameStyle;
+                    setTheme(currentTheme); setLang(d.currentLang || 'en');
+                } catch (e) { setLang('en'); }
+            } else { setLang('en'); }
+        }
+
+        function resetAllData() {
+            if(confirm(currentLang === 'ar' ? 'هل تود حقًا تصفير اللوحة ومسح كل شيء؟' : 'Are you sure you want to clear all data?')) {
+                localStorage.removeItem('prodoc_canvas_v3_premium'); location.reload();
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            loadFromLocalStorage();
+            ['input-name', 'input-email', 'input-phone', 'input-location', 'input-link', 'input-summary', 'input-skills', 'input-langs'].forEach(id => {
+                document.getElementById(id).addEventListener('input', () => { updateFullPreview(); saveToLocalStorage(); });
+            });
+            document.getElementById('input-img').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) { profileImgData = event.target.result; updateFullPreview(); saveToLocalStorage(); };
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
+
+        /* --- محرك الربط المباشر المتقدم بدون فتكست الفوكس والماوس --- */
+        function syncToPreview(arrayName, itemId, propertyName, element) {
+            let targetArray = window[arrayName];
+            if (!targetArray) return;
+            
+            let match = targetArray.find(item => item.id == itemId);
+            if (match) {
+                match[propertyName] = element.value;
+                
+                // تحديث مباشر وموضعي للـ Text DOM داخل ورقة الـ A4 المقابلة بدون إعادة بناء القالب بالكامل
+                const previewTextNode = document.querySelector(`[data-sync-block="${arrayName}-${itemId}-${propertyName}"]`);
+                if (previewTextNode) {
+                    if (propertyName === 'desc') {
+                        previewTextNode.innerText = element.value;
+                    } else {
+                        previewTextNode.textContent = element.value || '---';
+                    }
+                } else {
+                    updateFullPreview();
+                }
+                saveToLocalStorage();
+            }
+        }
+
+        function renderProjectsForm() {
+            const container = document.getElementById('projects-form-list'); container.innerHTML = '';
+            projects.forEach((p) => {
+                container.innerHTML += `<div class="dynamic-item">
+                    <div class="form-group"><label>${dictionary[currentLang].lbl_proj_title}</label><input type="text" value="${p.title}" oninput="syncToPreview('projects', ${p.id}, 'title', this)"></div>
+                    <div class="form-group"><label>${dictionary[currentLang].lbl_proj_link}</label><input type="text" value="${p.link}" oninput="syncToPreview('projects', ${p.id}, 'link', this); updateFullPreview();"></div>
+                    <div class="form-group"><label>${dictionary[currentLang].lbl_date}</label><input type="text" value="${p.date}" oninput="syncToPreview('projects', ${p.id}, 'date', this)"></div>
+                    <div class="form-group"><label>${dictionary[currentLang].lbl_desc}</label><textarea rows="2" oninput="syncToPreview('projects', ${p.id}, 'desc', this)">${p.desc}</textarea></div>
+                    <button class="btn-remove" onclick="removeArrData('proj', ${p.id})">${dictionary[currentLang].btn_remove}</button>
+                </div>`;
+            });
+        }
+        function addProjectField() { projects.push({ id: Date.now(), title: '', link: '', date: '', desc: '' }); renderProjectsForm(); updateFullPreview(); }
+
+        function renderExperienceForm() {
+            const container = document.getElementById('experience-form-list'); container.innerHTML = '';
+            experiences.forEach((exp) => {
+                container.innerHTML += `<div class="dynamic-item">
+                    <div class="form-group"><label>${dictionary[currentLang].lbl_job}</label><input type="text" value="${exp.title}" oninput="syncToPreview('experiences', ${exp.id}, 'title', this)"></div>
+                    <div class="form-group"><label>${dictionary[currentLang].lbl_comp}</label><input type="text" value="${exp.company}" oninput="syncToPreview('experiences', ${exp.id}, 'company', this)"></div>
+                    <div class="form-group"><label>${dictionary[currentLang].lbl_date}</label><input type="text" value="${exp.date}" oninput="syncToPreview('experiences', ${exp.id}, 'date', this)"></div>
+                    <div class="form-group"><label>${dictionary[currentLang].lbl_desc}</label><textarea rows="2" oninput="syncToPreview('experiences', ${exp.id}, 'desc', this)">${exp.desc}</textarea></div>
+                    <button class="btn-remove" onclick="removeArrData('exp', ${exp.id})">${dictionary[currentLang].btn_remove}</button>
+                </div>`;
+            });
+        }
+        function addExperienceField() { experiences.push({ id: Date.now(), title: '', company: '', date: '', desc: '' }); renderExperienceForm(); updateFullPreview(); }
+
+        function renderEducationForm() {
+            const container = document.getElementById('education-form-list'); container.innerHTML = '';
+            education.forEach((edu) => {
+                container.innerHTML += `<div class="dynamic-item">
+                    <div class="form-group"><label>${dictionary[currentLang].lbl_deg}</label><input type="text" value="${edu.degree}" oninput="syncToPreview('education', ${edu.id}, 'degree', this)"></div>
+                    <div class="form-group"><label>${dictionary[currentLang].lbl_inst}</label><input type="text" value="${edu.institution}" oninput="syncToPreview('education', ${edu.id}, 'institution', this)"></div>
+                    <div class="form-group"><label>${dictionary[currentLang].lbl_date}</label><input type="text" value="${edu.date}" oninput="syncToPreview('education', ${edu.id}, 'date', this)"></div>
+                    <div class="form-group"><label>${dictionary[currentLang].lbl_desc}</label><textarea rows="2" oninput="syncToPreview('education', ${edu.id}, 'desc', this)">${edu.desc}</textarea></div>
+                    <button class="btn-remove" onclick="removeArrData('edu', ${edu.id})">${dictionary[currentLang].btn_remove}</button>
+                </div>`;
+            });
+        }
+        function addEducationField() { education.push({ id: Date.now(), degree: '', institution: '', date: '', desc: '' }); renderEducationForm(); updateFullPreview(); }
+
+        function renderCertForm() {
+            const container = document.getElementById('cert-form-list'); container.innerHTML = '';
+            certs.forEach((cert) => {
+                container.innerHTML += `<div class="dynamic-item">
+                    <div class="form-group"><label>${dictionary[currentLang].lbl_cert}</label><input type="text" value="${cert.title}" oninput="syncToPreview('certs', ${cert.id}, 'title', this)"></div>
+                    <div class="form-group"><label>${dictionary[currentLang].lbl_org}</label><input type="text" value="${cert.org}" oninput="syncToPreview('certs', ${cert.id}, 'org', this)"></div>
+                    <div class="form-group"><label>${dictionary[currentLang].lbl_date}</label><input type="text" value="${cert.date}" oninput="syncToPreview('certs', ${cert.id}, 'date', this)"></div>
+                    <button class="btn-remove" onclick="removeArrData('cert', ${cert.id})">${dictionary[currentLang].btn_remove}</button>
+                </div>`;
+            });
+        }
+        function addCertField() { certs.push({ id: Date.now(), title: '', org: '', date: '' }); renderCertForm(); updateFullPreview(); }
+
+        function updateArrData(arr, id, prop, val) { arr.find(e => e.id === id)[prop] = val; updateFullPreview(); saveToLocalStorage(); }
+        function removeArrData(type, id) { 
+            if(type==='proj') { projects = projects.filter(e => e.id !== id); renderProjectsForm(); }
+            if(type==='exp') { experiences = experiences.filter(e => e.id !== id); renderExperienceForm(); }
+            if(type==='edu') { education = education.filter(e => e.id !== id); renderEducationForm(); }
+            if(type==='cert') { certs = certs.filter(e => e.id !== id); renderCertForm(); }
+            updateFullPreview(); saveToLocalStorage();
+        }
+
+        function updateFullPreview() {
+            const nameValue = document.getElementById('input-name').value || (currentLang === 'ar' ? 'الاسم بالكامل' : 'YOUR FULL NAME');
+            const email = document.getElementById('input-email').value || '';
+            const phone = document.getElementById('input-phone').value || '';
+            const loc = document.getElementById('input-location').value || '';
+            const link = document.getElementById('input-link').value || '';
+            const summary = document.getElementById('input-summary').value || '';
+            const skills = document.getElementById('input-skills').value || '';
+            const langs = document.getElementById('input-langs').value || '';
+
+            const nameHtml = `<span class="name-label">${dictionary[currentLang].lbl_name_tag}</span> ${nameValue}`;
+            const imgHtml = profileImgData ? `<div class="doc-header-img-container"><img class="doc-header-img border-${activeFrameStyle}" src="${profileImgData}" style="display:block;" alt="Profile"></div>` : '';
+            
+            const contactHtml = `
+                <div class="doc-contact-grid">
+                    ${email ? `<div class="doc-contact-item"><strong>${dictionary[currentLang].lbl_email_tag}</strong> <span>${email}</span></div>` : ''}
+                    ${phone ? `<div class="doc-contact-item"><strong>${dictionary[currentLang].lbl_phone_tag}</strong> <span>${phone}</span></div>` : ''}
+                    ${loc ? `<div class="doc-contact-item"><strong>${dictionary[currentLang].lbl_loc_tag}</strong> <span>${loc}</span></div>` : ''}
+                    ${link ? `<div class="doc-contact-item"><strong>${dictionary[currentLang].lbl_link_tag}</strong> <span>${link}</span></div>` : ''}
+                </div>`;
+
+            const summaryBlock = summary ? `<div class="doc-section"><div class="doc-section-title">${dictionary[currentLang].sec_summary}</div><div class="doc-summary">${summary}</div></div>` : '';
+            const skillsBlock = skills ? `<div class="doc-section"><div class="doc-section-title">${dictionary[currentLang].sec_skills}</div><div class="skills-list-render">${skills.split(/[,،]/).filter(s=>s.trim()).map(s=>`<span>• ${s.trim()}</span>`).join('')}</div></div>` : '';
+            const langsBlock = langs ? `<div class="doc-section"><div class="doc-section-title">${dictionary[currentLang].sec_langs}</div><div class="skills-list-render">${langs.split(/[,་]/).filter(s=>s.trim()).map(s=>`<span>• ${s.trim()}</span>`).join('')}</div></div>` : '';
+
+            const projBlock = projects.length ? `<div class="doc-section"><div class="doc-section-title">${dictionary[currentLang].sec_proj}</div>${projects.map(p => `
+                <div class="doc-item">
+                    <div class="doc-item-row">
+                        <span><span class="item-label">${dictionary[currentLang].tag_proj_title}</span><span class="item-value" data-sync-block="projects-${p.id}-title">${p.title || '---'}</span></span>
+                        <span><span class="item-label">${dictionary[currentLang].tag_date}</span><span class="item-date-value" data-sync-block="projects-${p.id}-date">${p.date || '---'}</span></span>
+                    </div>
+                    ${p.link ? `<div class="doc-item-sub"><span class="item-label">${dictionary[currentLang].tag_proj_link}</span><span style="font-weight:400; font-size:8.5pt;" data-sync-block="projects-${p.id}-link">${p.link}</span></div>` : ''}
+                    <div class="doc-item-desc" data-sync-block="projects-${p.id}-desc">${p.desc}</div>
+                </div>`).join('')}</div>` : '';
+
+            const expBlock = experiences.length ? `<div class="doc-section"><div class="doc-section-title">${dictionary[currentLang].sec_exp}</div>${experiences.map(exp => `
+                <div class="doc-item">
+                    <div class="doc-item-row">
+                        <span><span class="item-label">${dictionary[currentLang].tag_job_title}</span><span class="item-value" data-sync-block="experiences-${exp.id}-title">${exp.title || '---'}</span></span>
+                        <span><span class="item-label">${dictionary[currentLang].tag_date}</span><span class="item-date-value" data-sync-block="experiences-${exp.id}-date">${exp.date || '---'}</span></span>
+                    </div>
+                    <div class="doc-item-sub"><span class="item-label">${dictionary[currentLang].tag_company}</span><span data-sync-block="experiences-${exp.id}-company">${exp.company || '---'}</span></div>
+                    <div class="doc-item-desc" data-sync-block="experiences-${exp.id}-desc">${exp.desc}</div>
+                </div>`).join('')}</div>` : '';
+
+            const eduBlock = education.length ? `<div class="doc-section"><div class="doc-section-title">${dictionary[currentLang].sec_edu}</div>${education.map(edu => `
+                <div class="doc-item">
+                    <div class="doc-item-row">
+                        <span><span class="item-label">${dictionary[currentLang].tag_degree}</span><span class="item-value" data-sync-block="education-${edu.id}-degree">${edu.degree || '---'}</span></span>
+                        <span><span class="item-label">${dictionary[currentLang].tag_date}</span><span class="item-date-value" data-sync-block="education-${edu.id}-date">${edu.date || '---'}</span></span>
+                    </div>
+                    <div class="doc-item-sub"><span class="item-label">${dictionary[currentLang].tag_institution}</span><span data-sync-block="education-${edu.id}-institution">${edu.institution || '---'}</span></div>
+                    <div class="doc-item-desc" data-sync-block="education-${edu.id}-desc">${edu.desc}</div>
+                </div>`).join('')}</div>` : '';
+
+            const certBlock = certs.length ? `<div class="doc-section"><div class="doc-section-title">${dictionary[currentLang].sec_cert}</div>${certs.map(cert => `
+                <div class="doc-item" style="margin-bottom:8px;">
+                    <div class="doc-item-row">
+                        <span><span class="item-label">${dictionary[currentLang].tag_cert_title}</span><span class="item-value" data-sync-block="certs-${cert.id}-title">${cert.title || '---'}</span></span>
+                        <span><span class="item-label">${dictionary[currentLang].tag_date}</span><span class="item-date-value" data-sync-block="certs-${cert.id}-date">${cert.date || '---'}</span></span>
+                    </div>
+                    <div class="doc-item-sub"><span class="item-label">${dictionary[currentLang].tag_issuer}</span><span data-sync-block="certs-${cert.id}-org">${cert.org || '---'}</span></div>
+                </div>`).join('')}</div>` : '';
+
+            const target = document.getElementById('cv-render-target');
+            
+            if (currentTheme === 'split' || currentTheme === 'slate') {
+                target.innerHTML = `
+                    <div class="cv-layout-wrapper">
+                        <div class="cv-side-col">
+                            ${imgHtml}
+                            <div class="doc-header" style="border:none; margin-bottom:0; padding-bottom:0; align-items:stretch;">
+                                <div class="doc-header-info" style="text-align:center;"><h2>${nameHtml}</h2></div>
+                            </div>
+                            ${contactHtml}
+                            ${skillsBlock}
+                            ${langsBlock}
+                            ${certBlock}
+                        </div>
+                        <div class="cv-main-col">
+                            ${summaryBlock}
+                            ${projBlock}
+                            ${expBlock}
+                            ${eduBlock}
+                        </div>
+                    </div>`;
+            } else {
+                target.innerHTML = `
+                    <div class="doc-header">
+                        ${imgHtml}
+                        <div class="doc-header-info">
+                            <h2>${nameHtml}</h2>
+                            ${contactHtml}
+                        </div>
+                    </div>
+                    <div class="cv-layout-wrapper">
+                        ${summaryBlock}
+                        ${projBlock}
+                        ${expBlock}
+                        ${eduBlock}
+                        ${certBlock}
+                        ${skillsBlock}
+                        ${langsBlock}
+                    </div>`;
+            }
+        }
+    </script>
+</body>
+</html>
